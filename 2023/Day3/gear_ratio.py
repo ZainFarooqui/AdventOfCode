@@ -9,20 +9,10 @@ def read_files(file_path):
             lines.append(line.strip())
     return lines
 
-class PartNumbersCoordCache:
-    def __init__(self):
-        self.cache = set()
-
-    def add(self, x1, x2, y):
-        self.cache.add((x1, x2, y))
-
-    def check_cache(self, x1, x2, y):
-        return (x1, x2, y) in self.cache
-
 class Schematic:
     def __init__(self, input_schematic):
         self.schematic = input_schematic
-        self.cache = PartNumbersCoordCache()
+        self.cache = set()
         self.n = len(input_schematic)
         self.m = len(input_schematic[0])
         self.sum_of_parts = 0
@@ -43,10 +33,11 @@ class Schematic:
 
         x1 += 1
         x2 -= 1
-        if self.cache.check_cache(x1, x2, y):
+
+        if (x1, x2, y) in self.cache:
             return -1
         else:
-            self.cache.add(x1, x2, y)
+            self.cache.add((x1, x2, y))
             return int(part_number)
 
     def __find_adjacent_numbers(self, i, j):
