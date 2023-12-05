@@ -84,7 +84,7 @@ const applyScratchcardRules = (allCards) => {
         let matches = getNumberOfMatches(winningNumbers, numbersDrawn);
         let curr = i + 1;
         while (matches > 0 && i + matches < numberOfCards)  {
-            allCards[curr].instances += 1 * instances;
+            allCards[curr].instances += instances;
             matches -= 1;
             curr += 1;
         };
