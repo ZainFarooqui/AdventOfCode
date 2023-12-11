@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const EXPANSION_FACTOR = 1000000
+const EXPANSION_FACTOR = 1000000;
 
 const readFile = (filePath) => {
     let data = [];
@@ -41,31 +41,14 @@ const findEmptyCols = (gMap, limit) => {
     return emptyCols;
 };
 
-const formatGalaxy = (gMap) => {
+const findEmptySpace = (gMap) => {
     const n = gMap.length;
     const m = gMap[0].length;
 
     const emptyRows = findEmptyRows(gMap, n);
     const emptyCols = findEmptyCols(gMap, m);
-    
-    const newMap = [];
-    for (let i = 0; i < n; i++) {
-        const newRow = []
-        for (let j = 0; j < m; j++) {
-            newRow.push(gMap[i][j]);
-            if (emptyCols.includes(j)) {
-                newRow.push('.')
-            };
-        };
-        newMap.push(newRow)
-
-        if (emptyRows && emptyRows[0] === i) {
-            const fillRow = Array(n).fill('.');
-            newMap.push(fillRow);
-            emptyRows.shift()
-        };
-    };
-    return newMap
+   
+    return [emptyCols, emptyRows];
 };
 
 const findGalaxies = (cMap) => {
@@ -79,12 +62,27 @@ const findGalaxies = (cMap) => {
     return allGalaxies;
 };
 
-const findAllDistances = (gLocations) => {
+const findAllDistances = (gLocations, emptySpace) => {
+    const emptyCols = emptySpace[0];
+    const emptyRows = emptySpace[1];
+    const expansionConstant = EXPANSION_FACTOR - 1;
+
     let sumOfDistances = 0;
     for (let i = 0; i < gLocations.length; i++) {
         for (let j = i + 1; j < gLocations.length; j++) {
+            const startRow = Math.min(gLocations[i][0], gLocations[j][0]);
+            const endRow = Math.max(gLocations[i][0], gLocations[j][0]);
+            const startCol = Math.min(gLocations[i][1], gLocations[j][1]);
+            const endCol = Math.max(gLocations[i][1], gLocations[j][1]);
+           
+            let numberOfEmptyRows = emptyRows.filter(el => (startRow < el && el < endRow)).length;
+            let numberOfEmptyCols = emptyCols.filter(el => (startCol < el && el < endCol)).length;
+
             const distance = Math.abs(gLocations[j][0] - gLocations[i][0]) + 
-                                Math.abs(gLocations[j][1] - gLocations[i][1]);
+                Math.abs(gLocations[j][1] - gLocations[i][1]) +
+                numberOfEmptyCols * expansionConstant +
+                numberOfEmptyRows * expansionConstant;
+
             sumOfDistances += distance
         };
     };
@@ -92,10 +90,11 @@ const findAllDistances = (gLocations) => {
     return sumOfDistances;
 };
 
-const filePath = 'example.txt';
+const filePath = 'input.txt';
 const data = readFile(filePath);
-const cosmicMap = formatGalaxy(data);
-const galaxyLocations = findGalaxies(cosmicMap);
-const totalDistance = findAllDistances(galaxyLocations);
+const emptySpace = findEmptySpace(data);
+const galaxyLocations = findGalaxies(data);
+
+const totalDistance = findAllDistances(galaxyLocations, emptySpace);
 
 console.log(totalDistance);
